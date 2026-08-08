@@ -30,7 +30,11 @@
             "server": "src/main.server.ts",
             "outputMode": "server",
             "security": {
-              "allowedHosts": []
+              "allowedHosts": [
+                "salateenrestaurant.pk",
+                "www.salateenrestaurant.pk",
+                "localhost"
+              ]
             },
             "ssr": {
               "entry": "src/server.ts"
@@ -50,12 +54,40 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.demo.ts"
+                }
+              ],
+              "serviceWorker": false
             },
             "development": {
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "laravel": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -68,6 +100,9 @@
             },
             "development": {
               "buildTarget": "salateen-restaurant:build:development"
+            },
+            "laravel": {
+              "buildTarget": "salateen-restaurant:build:laravel"
             }
           },
           "defaultConfiguration": "development"

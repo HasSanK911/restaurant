@@ -1,0 +1,17 @@
+{
+  "name": "Salateen Restaurant Swabi",
+  "short_name": "Salateen",
+  "description": "Pakistani BBQ & family fine dining on Jhangira Road, Swabi. Order online, book a table.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fbf9f6",
+  "theme_color": "#bf4a2c",
+  "lang": "en",
+  "categories": ["food", "lifestyle"],
+  "icons": [
+    { "src": "assets/brand/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/brand/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/brand/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

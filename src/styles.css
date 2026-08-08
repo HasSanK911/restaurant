@@ -1,3 +1,648 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+/* ==========================================================================
+   Salateen Restaurant — Design System
+   Light theme: warm paper ground, terracotta "clay" primary, basil green
+   secondary and turmeric accents for the BBQ story.
+   ========================================================================== */
+
+@theme {
+  /* -- Brand: clay (terracotta / paprika — the primary) ------------------- */
+  --color-clay-50: #fdf5f2;
+  --color-clay-100: #fbe8e1;
+  --color-clay-200: #f6cec0;
+  --color-clay-300: #eeac96;
+  --color-clay-400: #e28565;
+  --color-clay-500: #d46341;
+  --color-clay-600: #bf4a2c;
+  --color-clay-700: #9f3a25;
+  --color-clay-800: #813225;
+  --color-clay-900: #6a2c22;
+  --color-clay-950: #3a140f;
+
+  /* -- Brand: basil (deep herb green — the secondary) --------------------- */
+  --color-basil-50: #f0f7f2;
+  --color-basil-100: #ddeee3;
+  --color-basil-200: #bcddc8;
+  --color-basil-300: #8fc3a4;
+  --color-basil-400: #5da37d;
+  --color-basil-500: #3d855f;
+  --color-basil-600: #2c6b4b;
+  --color-basil-700: #24553d;
+  --color-basil-800: #1f4432;
+  --color-basil-900: #1a382a;
+
+  /* -- Brand: turmeric (warm amber accent) -------------------------------- */
+  --color-turmeric-300: #f3c46f;
+  --color-turmeric-400: #e8a53c;
+  --color-turmeric-500: #d98c1f;
+  --color-turmeric-600: #b46e14;
+
+  /* -- Neutrals: warm stone ---------------------------------------------- */
+  --color-ink-50: #faf8f5;
+  --color-ink-100: #f3efe9;
+  --color-ink-200: #e7e1d8;
+  --color-ink-300: #d5cdc1;
+  --color-ink-400: #a89f92;
+  --color-ink-500: #7a7166;
+  --color-ink-600: #625a51;
+  --color-ink-700: #4c453e;
+  --color-ink-800: #362f2a;
+  --color-ink-900: #241f1b;
+  --color-ink-950: #14100e;
+
+  /* Page ground and the dark scrim laid over photography */
+  --color-paper: #fbf9f6;
+  --color-scrim: #1f1611;
+
+  /* -- Typography -------------------------------------------------------- */
+  --font-display: 'Fraunces', 'Georgia', 'Times New Roman', serif;
+  --font-sans: 'Outfit', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* -- Type scale --------------------------------------------------------
+     One ramp for the whole product. Replaces the ad-hoc `text-[0.62rem]`
+     style one-offs that had drifted to 21 distinct sizes, 35 of them under
+     the 12px legibility floor (the smallest was 8.8px).
+
+     `micro` is the only step below 12px and is reserved for UPPERCASE,
+     wide-tracked labels where the caps height carries legibility — never
+     for sentence-case body copy. Line heights ride along with each step so
+     body text lands in the 1.5–1.75 band. */
+  --text-micro: 0.6875rem; /* 11px — uppercase tracked labels only */
+  --text-micro--line-height: 1.45;
+  --text-micro--letter-spacing: 0.14em;
+  --text-caption: 0.75rem; /* 12px — smallest sentence-case text */
+  --text-caption--line-height: 1.5;
+  --text-label: 0.8125rem; /* 13px */
+  --text-label--line-height: 1.5;
+  --text-body-sm: 0.875rem; /* 14px */
+  --text-body-sm--line-height: 1.6;
+  --text-body: 1rem; /* 16px — mobile body floor */
+  --text-body--line-height: 1.65;
+  --text-body-lg: 1.0625rem; /* 17px */
+  --text-body-lg--line-height: 1.6;
+
+  /* Fluid display steps — replace fixed 2.6/2.85/4.6rem so headings scale
+     with the viewport instead of overflowing at 375px. */
+  --text-display-sm: clamp(1.75rem, 1.25rem + 2.2vw, 2.6rem);
+  --text-display-sm--line-height: 1.12;
+  --text-display: clamp(2rem, 1.35rem + 2.9vw, 2.85rem);
+  --text-display--line-height: 1.08;
+  --text-display-lg: clamp(2.5rem, 1.45rem + 4.6vw, 4.6rem);
+  --text-display-lg--line-height: 1.02;
+
+  /* -- Elevation / stacking ----------------------------------------------
+     A named scale so overlays stop competing with hand-picked values
+     (z-30 / z-40 / z-50 / z-[70] / z-[80] / z-[90] were all in use). */
+  --z-raised: 10;
+  --z-sticky: 30;
+  --z-nav: 40;
+  --z-header: 50;
+  --z-drawer: 70;
+  --z-modal: 80;
+  --z-toast: 90;
+  /* The gallery lightbox deliberately covers the toast stack so nothing
+     intrudes on a full-screen image. Flip it below --z-toast if toasts
+     should stay visible while the lightbox is open. */
+  --z-lightbox: 95;
+
+  /* -- Motion ------------------------------------------------------------ */
+  --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-swift: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* -- Shadows (light theme: soft, warm, low-contrast) ------------------- */
+  --shadow-lux: 0 18px 46px -22px rgb(58 20 15 / 0.28);
+  --shadow-clay: 0 12px 28px -10px rgb(191 74 44 / 0.38);
+  --shadow-soft: 0 1px 2px rgb(58 20 15 / 0.05), 0 8px 24px -14px rgb(58 20 15 / 0.18);
+
+  /* -- Custom animations ------------------------------------------------- */
+  --animate-shimmer: shimmer 1.8s linear infinite;
+  --animate-float: float 7s var(--ease-lux) infinite;
+  --animate-marquee: marquee 38s linear infinite;
+  --animate-fade-up: fade-up 0.7s var(--ease-lux) both;
+  --animate-fade-in: fade-in 0.5s var(--ease-lux) both;
+  --animate-ken-burns: ken-burns 18s var(--ease-lux) infinite alternate;
+  --animate-pulse-ring: pulse-ring 2.2s var(--ease-lux) infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes ken-burns {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.12) translate3d(-1.5%, -1.5%, 0);
+  }
+}
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgb(212 99 65 / 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 18px rgb(212 99 65 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(212 99 65 / 0);
+  }
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --header-h: 4.5rem;
+  }
+
+  * {
+    border-color: var(--color-ink-200);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--header-h) + 1rem);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink-700);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-variation-settings: 'SOFT' 20, 'WONK' 1;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+    color: var(--color-ink-900);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--color-clay-200);
+    color: var(--color-clay-900);
+  }
+
+  /* Focus visibility — WCAG 2.4.7 */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-clay-600);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-ink-100);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-ink-300);
+    border-radius: 999px;
+    border: 2px solid var(--color-ink-100);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-clay-400);
+  }
+
+  img {
+    content-visibility: auto;
+  }
+
+  /* ImageComponent's own box. Declared in the base layer, not as host classes,
+     so a caller passing `absolute inset-0` (or any position/overflow utility)
+     wins — utilities outrank base. As a host class, `.relative` was emitted
+     after `.absolute` and quietly beat it, letting the image stretch its
+     container to the photo's intrinsic height. */
+  app-image {
+    display: block;
+    position: relative;
+    overflow: hidden;
+  }
+
+  dialog::backdrop {
+    background: rgb(31 22 17 / 0.45);
+    backdrop-filter: blur(6px);
+  }
+}
+
+/* ==========================================================================
+   Components / utilities
+   ========================================================================== */
+
+@utility container-lux {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  max-width: 84rem;
+  @media (min-width: 768px) {
+    padding-inline: 2rem;
+  }
+  @media (min-width: 1280px) {
+    padding-inline: 2.5rem;
+  }
+}
+
+/* Caps line length in the 60–75 character band that keeps long-form copy
+   readable. `measure-narrow` is the mobile-leaning 45–60ch variant for
+   pull-quotes, hero subheads and card blurbs. */
+@utility measure {
+  max-width: 68ch;
+}
+
+@utility measure-narrow {
+  max-width: 54ch;
+}
+
+/* Prices, totals, counts and timers. Lining tabular figures stop numbers
+   from shifting width as they change, which otherwise jitters cart totals
+   and order timers on every update. */
+@utility nums {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+}
+
+@utility text-gradient-clay {
+  /* The accent is set in italic; without the trailing pad the clip box cuts
+     the overhang off the last glyph. */
+  padding-inline-end: 0.08em;
+  background-image: linear-gradient(
+    100deg,
+    var(--color-clay-600) 0%,
+    var(--color-clay-800) 48%,
+    var(--color-clay-600) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility glass {
+  background: color-mix(in oklab, white 72%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid color-mix(in oklab, var(--color-ink-300) 55%, transparent);
+}
+
+@utility glass-strong {
+  background: color-mix(in oklab, white 92%, transparent);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid color-mix(in oklab, var(--color-ink-300) 70%, transparent);
+}
+
+/* Flips the light-theme text ramp for content laid over photography.
+   Element-level utilities still win, so this only carries the component
+   classes (.eyebrow, .btn-secondary, .btn-ghost) that have no utility form. */
+@utility on-photo {
+  color: rgb(255 255 255 / 0.82);
+
+  & h1,
+  & h2,
+  & h3,
+  & h4 {
+    color: #ffffff;
+  }
+  & .eyebrow {
+    color: var(--color-clay-200);
+  }
+
+  /* Re-point the dark end of the ink ramp for anything nested in here —
+     child components carry their own utilities and cannot be flipped
+     per-element. Same layer, higher specificity, so these win. */
+  & :is(.text-ink-400, .text-ink-500, .text-ink-600) {
+    color: rgb(255 255 255 / 0.62);
+  }
+  & :is(.text-ink-700, .text-ink-800) {
+    color: rgb(255 255 255 / 0.82);
+  }
+  & .text-ink-900 {
+    color: #ffffff;
+  }
+  & :is(.text-clay-600, .text-clay-700, .text-clay-800) {
+    color: var(--color-clay-200);
+  }
+  & :is(.border-ink-200, .border-ink-300) {
+    border-color: rgb(255 255 255 / 0.22);
+  }
+  & :is(.bg-ink-200, .bg-ink-300) {
+    background-color: rgb(255 255 255 / 0.25);
+  }
+  & .text-gradient-clay {
+    background-image: linear-gradient(
+      100deg,
+      var(--color-clay-200) 0%,
+      var(--color-turmeric-300) 48%,
+      var(--color-clay-200) 100%
+    );
+  }
+  & .btn-secondary {
+    border-color: rgb(255 255 255 / 0.38);
+    background: rgb(255 255 255 / 0.1);
+    color: #ffffff;
+    backdrop-filter: blur(6px);
+  }
+  & .btn-secondary:hover {
+    border-color: rgb(255 255 255 / 0.65);
+    background: rgb(255 255 255 / 0.18);
+  }
+  & .btn-ghost {
+    color: rgb(255 255 255 / 0.85);
+  }
+  & .btn-ghost:hover {
+    background: rgb(255 255 255 / 0.14);
+    color: #ffffff;
+  }
+}
+
+/* Glass tuned for sitting on top of photography (light text) */
+@utility glass-dark {
+  background: color-mix(in oklab, var(--color-scrim) 42%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgb(255 255 255 / 0.18);
+}
+
+@utility eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-clay-600);
+}
+
+/* Hairline divider in the brand colour */
+@utility rule-clay {
+  position: relative;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--color-clay-500) 70%, transparent),
+    transparent
+  );
+}
+
+@utility card-lux {
+  position: relative;
+  border-radius: 1rem;
+  background: #ffffff;
+  border: 1px solid var(--color-ink-200);
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform 0.5s var(--ease-lux),
+    border-color 0.5s var(--ease-lux),
+    box-shadow 0.5s var(--ease-lux);
+}
+
+@utility skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-ink-100) 25%,
+    var(--color-ink-200) 37%,
+    var(--color-ink-100) 63%
+  );
+  background-size: 400% 100%;
+  animation: var(--animate-shimmer);
+  border-radius: 0.5rem;
+}
+
+@utility noise {
+  position: relative;
+}
+
+/* Grain overlay used on photographic hero sections for a filmic feel */
+@utility grain-overlay {
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.18;
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+}
+
+@layer components {
+  /* --- Buttons --------------------------------------------------------- */
+  .btn {
+    @apply relative inline-flex cursor-pointer items-center justify-center gap-2 rounded-full text-sm
+           font-semibold tracking-wide whitespace-nowrap transition-all duration-300 select-none
+           disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45;
+    transition-timing-function: var(--ease-lux);
+    /* Drops the ~300ms tap delay without disabling pinch-zoom. */
+    touch-action: manipulation;
+  }
+  /* Press feedback. Sits on .btn so every variant inherits the same rhythm,
+     and stays off when the user has asked for reduced motion. */
+  .btn:active:not(:disabled) {
+    transform: scale(0.97);
+    transition-duration: 100ms;
+  }
+  /* The compact variants are visually under 44px on purpose (dense toolbars,
+     table rows). On coarse pointers the hit area is pushed back out to 44px
+     with a centred pseudo-element, so the target meets the touch minimum
+     without inflating the layout. */
+  @media (pointer: coarse) {
+    .btn-sm::after,
+    .btn-icon::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: max(100%, 44px);
+      height: max(100%, 44px);
+      transform: translate(-50%, -50%);
+    }
+  }
+  .btn-primary {
+    @apply bg-gradient-to-r from-clay-600 to-clay-700 text-white shadow-clay
+           hover:from-clay-500 hover:to-clay-600 hover:-translate-y-0.5 active:translate-y-0;
+  }
+  .btn-secondary {
+    @apply border border-clay-600/35 bg-clay-50 text-clay-700
+           hover:border-clay-600/60 hover:bg-clay-100 hover:-translate-y-0.5 active:translate-y-0;
+  }
+  .btn-ghost {
+    @apply text-ink-600 hover:bg-ink-100 hover:text-ink-900;
+  }
+  .btn-danger {
+    @apply bg-red-600 text-white hover:bg-red-700;
+  }
+  .btn-sm {
+    @apply h-9 px-4 text-xs;
+  }
+  .btn-md {
+    @apply h-11 px-6;
+  }
+  .btn-lg {
+    @apply h-13 px-8 text-[0.95rem];
+  }
+  .btn-icon {
+    @apply h-10 w-10 rounded-full p-0;
+  }
+
+  /* --- Form controls --------------------------------------------------- */
+  .field {
+    /* 16px on mobile is not a style choice — iOS zooms the viewport on focus
+       for anything smaller. Steps down to 14px from `sm` up, where the
+       pointer is fine and the zoom behaviour does not apply. */
+    @apply w-full rounded-xl border border-ink-300 bg-white px-4 py-3 text-base text-ink-900
+           placeholder:text-ink-500 transition-[border-color,box-shadow] duration-200
+           focus:border-clay-500 focus:outline-none
+           disabled:cursor-not-allowed disabled:bg-ink-100 disabled:opacity-70
+           sm:text-sm;
+    min-height: 2.75rem; /* 44px touch target */
+  }
+  /* `focus:outline-none` above beats the zero-specificity :where() base rule,
+     so the ring has to be restored explicitly here rather than left to it. */
+  .field:focus-visible {
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-clay-500) 30%, transparent);
+  }
+  .field-invalid {
+    @apply border-red-500 focus:border-red-600;
+  }
+  .field-label {
+    @apply mb-1.5 block text-xs font-semibold tracking-wider text-ink-600 uppercase;
+  }
+  .field-error {
+    @apply mt-1.5 flex items-center gap-1.5 text-xs font-medium text-red-600;
+  }
+
+  /* --- Chips / badges -------------------------------------------------- */
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[0.7rem] font-semibold
+           tracking-wide whitespace-nowrap uppercase;
+  }
+
+  /* --- Section rhythm -------------------------------------------------- */
+  .section {
+    @apply py-20 md:py-28;
+  }
+
+  /* --- Admin surfaces -------------------------------------------------- */
+  .panel {
+    @apply rounded-2xl border border-ink-200 bg-white shadow-soft;
+  }
+  .table-lux {
+    @apply w-full border-collapse text-sm;
+  }
+  .table-lux thead th {
+    @apply border-b border-ink-200 bg-ink-50 px-4 py-3 text-left text-[0.68rem] font-bold tracking-[0.14em]
+           text-ink-500 uppercase;
+  }
+  .table-lux tbody td {
+    @apply border-b border-ink-200 px-4 py-3.5 align-middle text-ink-700;
+    /* Data cells are read down a column, so figures have to hold a constant
+       advance width or the digits fail to line up row to row. */
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  .table-lux tbody tr {
+    @apply transition-colors hover:bg-ink-50;
+  }
+}
+
+/* Scroll-reveal: elements start hidden, `revealed` is toggled by the
+   appReveal directive via IntersectionObserver. Kept out of @layer so it
+   always wins over utility classes. */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.75s var(--ease-lux),
+    transform 0.75s var(--ease-lux);
+  will-change: opacity, transform;
+}
+[data-reveal].revealed {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Hide scrollbar but keep scrolling (horizontal rails) */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

@@ -1,0 +1,16 @@
+# Salateen Restaurant Swabi — https://salateenrestaurant.pk
+User-agent: *
+Allow: /
+
+# Private / transactional areas must not be indexed
+Disallow: /admin
+Disallow: /kitchen
+Disallow: /account
+Disallow: /auth
+Disallow: /checkout
+Disallow: /cart
+Disallow: /order/track
+Disallow: /*?*sort=
+Disallow: /*?*page=
+
+Sitemap: https://salateenrestaurant.pk/sitemap.xml

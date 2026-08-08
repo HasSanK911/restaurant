@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Salateen">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e28565"/><stop offset=".5" stop-color="#c2542f"/><stop offset="1" stop-color="#813225"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#fbf9f6"/>
+  <rect x="4.5" y="4.5" width="55" height="55" rx="11" fill="none" stroke="url(#g)" stroke-width="1.5" opacity=".55"/>
+  <path d="M41.6 21.2c-2.3-2.9-5.6-4.4-9.7-4.4-6.3 0-10.4 3.2-10.4 8 0 4.1 2.7 6.4 8.6 7.8l3.6.9c3.5.8 4.8 1.8 4.8 3.6 0 2.3-2.2 3.8-5.7 3.8-3.7 0-6.6-1.6-8.7-4.7l-3.6 3.3c2.6 3.9 6.8 6 12.2 6 6.8 0 11.2-3.4 11.2-8.6 0-4.3-2.7-6.7-8.8-8.1l-3.6-.8c-3.3-.8-4.6-1.7-4.6-3.4 0-2.1 2-3.5 5.1-3.5 3.2 0 5.7 1.3 7.5 3.9z" fill="url(#g)"/>
+</svg>
