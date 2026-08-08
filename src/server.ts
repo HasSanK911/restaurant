@@ -1,87 +1,61 @@
+import { AngularAppEngine, createRequestHandler } from '@angular/ssr';
 import {
-  AngularNodeAppEngine,
-  createNodeRequestHandler,
-  isMainModule,
-  writeResponseToNodeResponse,
-} from '@angular/ssr/node';
-import express from 'express';
-import { join } from 'node:path';
-
-const browserDistFolder = join(import.meta.dirname, '../browser');
-
-const app = express();
-const angularApp = new AngularNodeAppEngine();
+  getAllowedHosts,
+  getContext,
+  getTrustProxyHeaders,
+} from '@netlify/angular-runtime/app-engine.js';
 
 /**
- * Static assets.
+ * SSR entry point.
  *
- * Hashed build output can be cached for a year. `index.html` and the prerendered
- * page shells must not be, or a deploy will not reach anyone still holding an
- * old copy.
+ * MUST export `netlifyAppEngineHandler`. @netlify/angular-runtime inspects this
+ * file during `onPreBuild`: if it recognises a stock Angular server.ts it
+ * silently swaps in its own, and if it finds neither a known signature nor a
+ * `netlifyAppEngineHandler` export it fails the build outright
+ * (see node_modules/@netlify/angular-runtime/src/helpers/serverModuleHelpers.js).
+ * Because this file exports that name, the plugin leaves it alone and the
+ * customisation below survives.
+ *
+ * `getAllowedHosts()` derives the allowed host list from Netlify's deploy
+ * environment variables (URL, DEPLOY_PRIME_URL, SITE_ID, SITE_NAME, DEPLOY_ID),
+ * which is what makes SSR work on `*.netlify.app`, branch deploys and deploy
+ * previews. Angular unions it with `security.allowedHosts` from angular.json,
+ * so the custom domain listed there is still honoured.
  */
-app.use(
-  express.static(browserDistFolder, {
-    maxAge: '1y',
-    index: false,
-    redirect: false,
-    setHeaders: (res, path) => {
-      if (path.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
-    },
-  }),
-);
-
-/**
- * Angular render, with one correction.
- *
- * A wildcard route means Angular happily renders the not-found page for any
- * unknown URL and returns 200 — a "soft 404", which search engines treat as a
- * thin duplicate page and which makes crawl budget disappear into typos and
- * stale links.
- *
- * The not-found page emits `<meta name="render-status-code" content="404">`
- * (see SeoService). We read it back out of the rendered HTML and answer with a
- * real 404. Cheap, and it keeps the status decision next to the page that knows
- * about it rather than duplicating a route table here.
- */
-app.use((req, res, next) => {
-  angularApp
-    .handle(req)
-    .then(async (response) => {
-      if (!response) return next();
-
-      const contentType = response.headers.get('content-type') ?? '';
-      if (!contentType.includes('text/html')) {
-        return writeResponseToNodeResponse(response, res);
-      }
-
-      const html = await response.text();
-      const match = html.match(/<meta\s+name="render-status-code"\s+content="(\d{3})"/i);
-      const status = match ? Number(match[1]) : response.status;
-
-      const headers = new Headers(response.headers);
-      headers.delete('content-length');
-
-      return writeResponseToNodeResponse(new Response(html, { status, headers }), res);
-    })
-    .catch(next);
+const angularAppEngine = new AngularAppEngine({
+  allowedHosts: getAllowedHosts(),
+  trustProxyHeaders: getTrustProxyHeaders(),
 });
 
-/**
- * Start the server if this module is the main entry point, or it is run via PM2.
- * Listens on PORT, defaulting to 4000.
- */
-if (isMainModule(import.meta.url) || process.env['pm_id']) {
-  const port = process.env['PORT'] || 4000;
-  app.listen(port, (error) => {
-    if (error) {
-      throw error;
-    }
+export async function netlifyAppEngineHandler(request: Request): Promise<Response> {
+  const context = getContext();
 
-    console.log(`Node Express server listening on http://localhost:${port}`);
-  });
+  const result = await angularAppEngine.handle(request, context);
+  if (!result) return new Response('Not found', { status: 404 });
+
+  // --- Soft-404 correction ------------------------------------------------
+  // A wildcard route means Angular happily renders the not-found page for any
+  // unknown URL and returns 200 — a "soft 404", which search engines treat as a
+  // thin duplicate and which quietly burns crawl budget on typos and dead links.
+  //
+  // The not-found page emits `<meta name="render-status-code" content="404">`
+  // (see SeoService). Reading it back out keeps the status decision next to the
+  // page that knows about it, rather than duplicating a route table here.
+  const contentType = result.headers.get('content-type') ?? '';
+  if (!contentType.includes('text/html')) return result;
+
+  const html = await result.text();
+  const match = html.match(/<meta\s+name="render-status-code"\s+content="(\d{3})"/i);
+
+  // Re-reading the body means the original Content-Length can no longer be
+  // trusted, so drop it on both paths and let the platform set it.
+  const headers = new Headers(result.headers);
+  headers.delete('content-length');
+
+  return new Response(html, { status: match ? Number(match[1]) : result.status, headers });
 }
 
 /**
- * Request handler used by the Angular CLI (for dev-server and during build) or Firebase Cloud Functions.
+ * Request handler used by the Angular CLI (dev-server and during the build).
  */
-export const reqHandler = createNodeRequestHandler(app);
+export const reqHandler = createRequestHandler(netlifyAppEngineHandler);

@@ -1,6 +1,6 @@
 import { DOCUMENT, Injectable, RendererFactory2, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
-import { environment } from '../../../environments/environment';
+import { SITE_URL } from '../tokens/api-base-url.token';
 import { BRAND } from '../constants/app.constants';
 import { RestaurantProfile } from '../models/restaurant.model';
 import { MenuItem } from '../models/menu.model';
@@ -50,6 +50,9 @@ export class SeoService {
   private readonly meta = inject(Meta);
   private readonly doc = inject(DOCUMENT);
   private readonly renderer = inject(RendererFactory2).createRenderer(null, null);
+
+  /** Origin this build is actually served from. See the SITE_URL token. */
+  private readonly siteUrl = inject(SITE_URL);
 
   apply(config: SeoConfig): void {
     const fullTitle = config.title.includes('Salateen')
@@ -110,11 +113,11 @@ export class SeoService {
     const schema = {
       '@context': 'https://schema.org',
       '@type': 'Restaurant',
-      '@id': `${environment.siteUrl}/#restaurant`,
+      '@id': `${this.siteUrl}/#restaurant`,
       name: profile.name,
       alternateName: profile.legalName,
       description: profile.shortDescription,
-      url: environment.siteUrl,
+      url: this.siteUrl,
       telephone: profile.phone,
       email: profile.email,
       image: [
@@ -155,7 +158,7 @@ export class SeoService {
         bestRating: 5,
         worstRating: 1,
       },
-      hasMenu: `${environment.siteUrl}/menu`,
+      hasMenu: `${this.siteUrl}/menu`,
       acceptsReservations: 'True',
       sameAs: Object.values(profile.social).filter(Boolean),
       amenityFeature: profile.amenities.flatMap((g) =>
@@ -312,8 +315,8 @@ export class SeoService {
   }
 
   private absolute(pathOrUrl: string): string {
-    if (!pathOrUrl) return environment.siteUrl;
+    if (!pathOrUrl) return this.siteUrl;
     if (/^https?:\/\//.test(pathOrUrl)) return pathOrUrl;
-    return `${environment.siteUrl}/${pathOrUrl.replace(/^\//, '')}`;
+    return `${this.siteUrl}/${pathOrUrl.replace(/^\//, '')}`;
   }
 }

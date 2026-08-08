@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { API_BASE_URL } from '../tokens/api-base-url.token';
 import { ID, Paginated, QueryParams } from '../models/common.model';
 
 /**
@@ -15,7 +15,7 @@ import { ID, Paginated, QueryParams } from '../models/common.model';
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);
-  private readonly base = environment.apiUrl;
+  private readonly base = inject(API_BASE_URL);
 
   get<T>(path: string, params?: QueryParams): Observable<T> {
     return this.http.get<T>(this.url(path), { params: this.buildParams(params) });

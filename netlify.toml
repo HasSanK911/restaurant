@@ -1,9 +1,82 @@
-[build]
-command = "npm run build"
-publish = "/dist/salateen-restaurant/browser"
-base = "/"
+# Netlify configuration — Salateen Restaurant Swabi
+#
+# Angular 21, outputMode "server". @netlify/angular-runtime compiles the SSR
+# bundle into an edge function mounted at "/*", with
+#   excludedPath = ["/.netlify/*", ...every static file, ...every prerendered route]
+# (see node_modules/@netlify/angular-runtime/src/helpers/setUpEdgeFunction.js).
+#
+# Three consequences drive this whole file:
+#
+#  1. `@netlify/angular-runtime` must be a real devDependency in package.json,
+#     not installed from the Netlify UI. The plugin resolves itself from the
+#     site root, and a UI-installed copy is invisible to that check — which is
+#     what produces the misleading "requires '@netlify/angular-runtime@^4.0.0'
+#     or later to be installed" error even when 4.0.0 is clearly loaded.
+#     If it is ALSO enabled in the Netlify UI, remove it there: disabling it in
+#     one place does not disable it in the other.
+#
+#  2. There is deliberately NO SPA catch-all redirect. Edge functions run before
+#     redirects, so `/* -> /index.html 200` could never fire anyway — it would
+#     only serve to mask a dead SSR function, and it would defeat the real 404
+#     handling this site implements.
+#
+#  3. The demo API is served from /.netlify/functions/api, not a prettier
+#     /api/*, because /.netlify/* is the one prefix the edge function lets
+#     through. See src/environments/environment.netlify.ts.
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+[build]
+  command = "npm run build:netlify"
+  publish = "dist/salateen-restaurant/browser"
+
+[build.environment]
+  # Pinned, not inherited. @netlify/angular-runtime@4 is ESM-only and json-server
+  # needs >= 22.12.0, which is stricter than Angular's own floor.
+  #
+  # Note: netlify.toml does NOT interpolate variables. Do not write
+  # SITE_URL = "$URL" here — it sets the literal string "$URL". Netlify already
+  # injects URL / DEPLOY_PRIME_URL as real environment variables, and both the
+  # sitemap script and the SSR canonical resolver read those directly.
+  NODE_VERSION = "22"
+
+[[plugins]]
+  package = "@netlify/angular-runtime"
+
+[functions]
+  node_bundler = "esbuild"
+
+  [functions."api"]
+    # The demo API reads db.json. esbuild inlines the import, but bundling the
+    # file too keeps the on-disk fallback path viable.
+    included_files = ["db.json"]
+
+# Fingerprinted build output (outputHashing: "all") is safe to freeze forever.
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# NOT immutable: /assets comes from public/ and is NOT fingerprinted, so a
+# one-year immutable cache would strand any replaced photograph for a year.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+# Keep deploy previews and branch deploys out of the index so they cannot
+# compete with the production domain for the same content.
+[context.deploy-preview]
+  [[context.deploy-preview.headers]]
+    for = "/*"
+    [context.deploy-preview.headers.values]
+      X-Robots-Tag = "noindex"
+
+[context.branch-deploy]
+  [[context.branch-deploy.headers]]
+    for = "/*"
+    [context.branch-deploy.headers.values]
+      X-Robots-Tag = "noindex"

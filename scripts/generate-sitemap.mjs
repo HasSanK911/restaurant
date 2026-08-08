@@ -10,7 +10,19 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const SITE = process.env['SITE_URL'] ?? 'https://salateenrestaurant.pk';
+
+/**
+ * Site origin for the emitted URLs.
+ *
+ * Prefers an explicit SITE_URL, then Netlify's injected URL / DEPLOY_PRIME_URL,
+ * then the production domain. Each candidate is validated as an absolute http
+ * URL — netlify.toml performs no variable interpolation, so a well-meaning
+ * `SITE_URL = "$URL"` there would arrive as the literal string `$URL` and
+ * silently emit `<loc>$URL/menu</loc>` for all 98 URLs.
+ */
+const SITE = [process.env['SITE_URL'], process.env['URL'], process.env['DEPLOY_PRIME_URL']]
+  .find((candidate) => candidate && /^https?:\/\//i.test(candidate))
+  ?.replace(/\/+$/, '') ?? 'https://salateenrestaurant.pk';
 
 /** [path, changefreq, priority] */
 const STATIC_ROUTES = [

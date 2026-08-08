@@ -46,7 +46,7 @@ URL. Role-based access is real, not decorative.
 | `npm run build` | **Production build of the demo.** Starts the API, prerenders 101 routes against live data, stops the API |
 | `npm run build:laravel` | Production build against the real Laravel API |
 | `npm run sitemap` | Regenerates `public/sitemap.xml` from `db.json` |
-| `npm run serve:ssr:salateen-restaurant` | Serves the built SSR app on :4000 |
+| `npm run build:netlify` | Production build for the Netlify demo deploy |
 | `npm run format` | Prettier |
 
 > `npm run build` deliberately starts the API before building. Angular prerenders by *running* the
@@ -181,6 +181,64 @@ must move to the server, each marked with a comment in the source explaining why
 | Order totals | `checkout.page.ts` | Client-supplied; the server must recompute |
 
 All six are specified in `BACKEND_PLAN.md` and their exact replacements in `MIGRATION_GUIDE.md`.
+
+---
+
+## Deploying the demo to Netlify
+
+```bash
+git add -A && git commit -m "Netlify deployment" && git push
+```
+
+Netlify builds from the committed tree, so everything below has to be in the
+commit — the plugin, `netlify.toml`, the function and `db.json` all matter.
+
+**Netlify site settings**
+
+- Build command and publish directory come from `netlify.toml`; leave both blank
+  in the UI so they cannot override it.
+- In *Site configuration → Build & deploy → Build plugins*, **remove
+  `@netlify/angular-runtime` if it is installed there.** It must come from
+  `package.json` instead. A UI-installed copy is not resolvable from the site
+  root, and the plugin's check for itself then fails with the misleading
+  *"requires '@netlify/angular-runtime@^4.0.0' or later to be installed"* — even
+  though 4.0.0 is loaded. Disabling it in one place does not disable it in the other.
+- Do not set `NODE_ENV=production`; it makes npm skip devDependencies, and the
+  Angular CLI lives there.
+
+**How the deployed demo works**
+
+| Piece | Where it runs |
+|---|---|
+| 101 prerendered pages | Static, straight off the CDN |
+| Unknown URLs, client-only routes | Angular SSR edge function (`/*`) |
+| The demo API | `netlify/functions/api.mts` at `/.netlify/functions/api/*` |
+
+The API is a JSON-Server-compatible stand-in over the same `db.json`, so
+ordering, booking, sign-in and the admin panel all work on the deployed site.
+Writes persist in Netlify Blobs, so an order placed on the storefront really does
+appear in the admin panel. `POST /.netlify/functions/api/_reset` restores the
+seed — worth doing before a client walkthrough.
+
+It is served from `/.netlify/functions/api` rather than a prettier `/api`
+deliberately: the SSR edge function is mounted at `/*` and excludes only
+`/.netlify/*`, the static files and the prerendered routes, so `/api/*` would be
+swallowed and returned as HTML.
+
+**Verifying a deploy**
+
+```bash
+npx netlify build              # runs the exact CI pipeline locally
+curl -sI https://<site>/                     # 200
+curl -sI https://<site>/this-does-not-exist  # 404, not a soft 404
+curl -s  https://<site>/.netlify/functions/api/restaurant | head -c 80
+```
+
+`npm run build` fails the build if the prerendered HTML comes out empty. Angular
+prerenders by *running* the app, so if the API is unreachable at build time every
+page ships as a shell that looks fine in a browser and is blank to every crawler.
+That has happened once in this project; the assertion exists so it cannot happen
+silently again.
 
 ---
 

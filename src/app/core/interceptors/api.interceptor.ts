@@ -2,6 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, retry, throwError, timeout, timer } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { API_BASE_URL } from '../tokens/api-base-url.token';
 import { ApiError } from '../models/common.model';
 import { AuthService } from '../services/auth.service';
 import { ToastService } from '../services/toast.service';
@@ -19,7 +20,8 @@ export const apiInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const toast = inject(ToastService);
 
-  const isApiCall = req.url.startsWith(environment.apiUrl);
+  const apiBase = inject(API_BASE_URL);
+  const isApiCall = req.url.startsWith(apiBase);
   const token = auth.session()?.token;
 
   const request = isApiCall

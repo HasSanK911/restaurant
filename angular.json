@@ -88,6 +88,27 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ]
+            },
+            "netlify": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.netlify.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -103,6 +124,9 @@
             },
             "laravel": {
               "buildTarget": "salateen-restaurant:build:laravel"
+            },
+            "netlify": {
+              "buildTarget": "salateen-restaurant:build:netlify"
             }
           },
           "defaultConfiguration": "development"
